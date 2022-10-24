@@ -1,9 +1,3 @@
-/**
- * Learn more about deep linking with React Navigation
- * https://reactnavigation.org/docs/deep-linking
- * https://reactnavigation.org/docs/configuring-links
- */
-
 import { LinkingOptions } from '@react-navigation/native';
 import * as Linking from 'expo-linking';
 
@@ -15,20 +9,46 @@ const linking: LinkingOptions<RootStackParamList> = {
     screens: {
       Root: {
         screens: {
-          TabOne: {
+          Activities: {
             screens: {
-              TabOneScreen: 'one',
+              ActivitiesRoot: 'activitiesroot',
+              AddActivity: 'addactivity',
+            }
+          },
+          Lodging: {
+            screens: {
+              LodgingRoot: 'lodging',
             },
           },
-          TabTwo: {
+          Map: {
             screens: {
-              TabTwoScreen: 'two',
+              MapRoot: 'map'
+            }
+          },
+          Transport: {
+            screens: {
+              TransportRoot: 'transport',
+              AddVehicle: 'addvehicle',
+              AddFlight: "addflight"
+            }
+          },
+          Trips: {
+            screens: {
+              HomeScreen: 'home',
+              TripScreen: 'trip',
+            },
+          },
+          Profile: {
+            screens: {
+              ProfileRoot: 'profile',
             },
           },
         },
       },
+      FirstTrip: 'firsttrip',
       Modal: 'modal',
       NotFound: '*',
+      SignIn: 'signin',
     },
   },
 };
