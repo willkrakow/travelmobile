@@ -6,7 +6,7 @@ import { ILodging } from '../types/Lodging';
 import { useTripContext } from './useTripContexts';
 
 
-const lodgingCol = createCollection<ILodging>('lodging')
+export const lodgingCol = createCollection<ILodging>('lodging')
 const useLodging = () => {
     const {tripId = ''} = useTripContext();
     const client = useQueryClient();

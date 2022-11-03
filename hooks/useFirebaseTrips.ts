@@ -14,7 +14,7 @@ const useFirebaseTrips = () => {
     const client = useQueryClient()
     const create = useMutation(async (data: any) => {
         try {
-            const docRef = await addDoc(tripCollection, data)
+            const docRef = await addDoc(tripCollection, {...data, user_id: userId})
             const imageRef = ref(getStorage(app), `${docRef.id}/${uuidv4()}`)
             const blob = await new Promise<Blob>((resolve, reject) => {
               const xhr = new XMLHttpRequest();

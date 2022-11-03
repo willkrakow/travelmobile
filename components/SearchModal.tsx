@@ -51,7 +51,7 @@ const SearchModal = ({
   }, [inputText]);
 
   const onPress = (id: string, value: string, data: IOption) => {
-    onSelect(id, value);
+    onSelect(id, value, data);
     onClose();
   };
 

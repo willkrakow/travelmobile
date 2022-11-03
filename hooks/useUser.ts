@@ -3,8 +3,9 @@ import { getAuth } from "firebase/auth";
 import { createCollection } from '../vendors/Firebase';
 import { doc, getDoc, updateDoc} from 'firebase/firestore';
 import { useMutation, useQuery } from 'react-query';
+import { IUser } from '../types/User';
 
-const userCol = createCollection<IUser>("users")
+export const userCol = createCollection<IUser>("users")
 
 
 const useUser = () => {

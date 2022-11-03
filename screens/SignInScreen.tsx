@@ -7,8 +7,8 @@ import { isNil } from '../utils/common';
 
 
 const SignInScreen = () => {
-    const [email, setEmail] = React.useState<string>();
-    const [pw, setPw] = React.useState<string>();
+    const [email, setEmail] = React.useState<string>('willkrakow@gmail.com');
+    const [pw, setPw] = React.useState<string>('Runner7!');
     const {handleAnonSignIn,handleSignIn,handleSignUp} = useAccount(email, pw)
 
 

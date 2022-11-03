@@ -2,14 +2,18 @@ import { ListItem, Text, SpeedDial, lightColors } from '@rneui/themed';
 import dayjs from 'dayjs';
 import React from 'react'
 import { StyleSheet, View } from 'react-native'
+import DirectionsCard from '../components/DirectionsCard';
+import DriveCard from '../components/DirectionsCard';
 import ThemeIcon from '../components/ThemeIcon';
+import useDrives from '../hooks/useDrives';
 import useFlights from '../hooks/useFlights';
 import { TransportStackScreenProps } from '../types'
 
 const TransportScreen = ({ navigation }: TransportStackScreenProps<"Home">) => {
   const [isOpen, setIsOpen] = React.useState<boolean>(false);
   const { getAll: flights } = useFlights();
-  
+  const {getAll: drives} = useDrives();
+
   return (
     <View style={styles.root}>
       <Text h4>Flights</Text>
@@ -42,6 +46,10 @@ const TransportScreen = ({ navigation }: TransportStackScreenProps<"Home">) => {
               <Text style={styles.priceText}>${f.price} - <Text style={styles.seatClass}>{f.seat_class} class</Text></Text>
             </ListItem.Content>
           </ListItem>
+        ))}
+        <Text h4>Drives</Text>
+        {!drives.isLoading && drives.data && drives.data.map(d => (
+          <DirectionsCard type="drive" data={d} key={d.id} />
         ))}
       <SpeedDial
         icon={<ThemeIcon name="ellipsis-horizontal" color="white" />}

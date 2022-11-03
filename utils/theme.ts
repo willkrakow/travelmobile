@@ -88,6 +88,31 @@ export const theme = createTheme({
         fontFamily: "Inter-Bold"
       },
     },
+    DialogButton: {
+      containerStyle: {
+        shadowColor: lightColors.black,
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
+        shadowOpacity: 0.2,
+        shadowRadius: 5,
+        overflow: "hidden",
+        borderRadius: 10,
+      },
+      color: lightColors.primary,
+      style: {
+        borderRadius: 10,
+      },
+      buttonStyle: {
+        borderRadius: 10,
+      },
+      titleStyle: {
+        textTransform: "uppercase",
+        letterSpacing: 1,
+        fontFamily: "Inter-Bold"
+      },
+    },
     ListItemTitle: {
       h1Style: {
         fontFamily: "Inter-Regular"

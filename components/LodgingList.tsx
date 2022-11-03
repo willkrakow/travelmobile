@@ -54,9 +54,6 @@ export default function LodgingList({ navigation }: LodgingStackScreenProps<"Hom
       currentDay = currentDay.add(1, "day");
     }
 
-    console.log('days', days);
-    console.log('ordered', ordered);
-
     const dayData = days.map((day) => {
       const lodging = ordered.find((stay) => {
         if(dayjs(stay.start_date).isAfter(day)) return false;

@@ -9,6 +9,8 @@ import PlaceLink from "./PlaceLink";
 import usePlaceDetails from "../hooks/usePlaceDetails";
 import useTripActivities from "../hooks/useTripActivities";
 import { placePhoto } from "../utils/images";
+import { useNavigation } from "@react-navigation/native";
+import ThemeIcon from "./ThemeIcon";
 
 interface IActivityCard {
   act: IActivity & {
@@ -21,7 +23,7 @@ const ActivityCard = ({ act }: IActivityCard) => {
   const { data, isLoading } = usePlaceDetails(act?.place_id);
   const { deleteOne } = useTripActivities();
   const [isDeleting, setIsDeleting] = React.useState(false);
-
+  const navigate = useNavigation();
   const photoRef = React.useMemo(() => {
     if (isLoading) return null;
     const r = data?.result?.photos?.[0]?.photo_reference || null;
@@ -34,21 +36,27 @@ const ActivityCard = ({ act }: IActivityCard) => {
     });
   };
 
+  const handleEdit = () => {
+    navigate.navigate("Root", {
+      screen: "Activities",
+      params: { screen: "AddActivity", params: { default_data: act } },
+    });
+  };
+
   const width = Dimensions.get("screen").width - 20;
   return (
     <ListItem
       containerStyle={[
         styles.roundedBorder,
         styles.noPadding,
-        { width: width - 20 },
+        { width: width - 20, zIndex: 20, elevation: 20 },
       ]}
       style={[styles.roundedBorder, styles.noPadding, styles.root]}
-      key={act.id}
       bottomDivider
       disabled={deleteOne.isLoading}
       disabledStyle={{ backgroundColor: theme.colors.grey4 }}
     >
-      <ListItem.Content>
+      <ListItem.Content style={{ position: "relative" }}>
         {photoRef && (
           <View
             style={{
@@ -75,26 +83,45 @@ const ActivityCard = ({ act }: IActivityCard) => {
             />
           </View>
         )}
+        <View
+          style={{
+            position: "absolute",
+            top: 10,
+            right: 0,
+            flexDirection: "row",
+            justifyContent: "flex-end",
+            flex: 1,
+          }}
+        >
+          <Button
+            containerStyle={{ marginRight: 5 }}
+            type="solid"
+            color="primary"
+            onPress={handleEdit}
+            icon={<ThemeIcon name="pencil" color="white" />}
+          />
+          <Button
+            type="solid"
+            color="warning"
+            onPress={() => setIsDeleting(true)}
+            icon={<ThemeIcon name="close" />}
+          />
+        </View>
         <View style={styles.cardInner}>
           <ListItem.Title style={styles.title}>{act.title}</ListItem.Title>
           <ListItem.Subtitle style={styles.subtitle} lineBreakMode="clip">
             <Ionicons name="location" />{" "}
-            <PlaceLink placeId={act.place_id} displayName={act.location} />
-          </ListItem.Subtitle>
-          <View style={styles.row}>
-            <Text style={styles.dateRange}>
-              <Ionicons name="time" /> {dayjs(act.start_date).format("h:mm A")}{" "}
-              - {dayjs(act.end_date).format("h:mm A")}
-            </Text>
-            <Button
-              buttonStyle={styles.deleteButton}
-              type="clear"
-              onPress={handleDelete}
-              icon={
-                <Ionicons style={styles.roundedBorder} name="close" size={20} />
-              }
+            <PlaceLink
+              placeId={act.place_id}
+              displayName={`${act.location.split(",")[0]},${
+                act.location.split(",")[1]
+              }`}
             />
-          </View>
+          </ListItem.Subtitle>
+          <Text style={styles.dateRange}>
+            <Ionicons name="time" /> {dayjs(act.start_date).format("h:mm A")} -{" "}
+            {dayjs(act.end_date).format("h:mm A")}
+          </Text>
         </View>
       </ListItem.Content>
       <Dialog
@@ -103,10 +130,14 @@ const ActivityCard = ({ act }: IActivityCard) => {
         animationType="slide"
         onBackdropPress={() => setIsDeleting(false)}
       >
+        <Dialog.Title
+          title={`Are you sure you want to delete ${act.title} from your trip?`}
+        />
         <Dialog.Actions>
           <Dialog.Button
             loading={deleteOne.isLoading}
             disabled={deleteOne.isLoading}
+            containerStyle={{ marginRight: 10 }}
             type="outline"
             color="primary"
             onPress={() => setIsDeleting(false)}
@@ -116,6 +147,7 @@ const ActivityCard = ({ act }: IActivityCard) => {
           <Dialog.Button
             loading={deleteOne.isLoading}
             disabled={deleteOne.isLoading}
+            containerStyle={{ marginLeft: 10 }}
             type="solid"
             color="primary"
             onPress={handleDelete}
@@ -133,6 +165,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginLeft: "auto",
     marginRight: "auto",
+    zIndex: 21
   },
   title: {
     flex: 1,
@@ -155,6 +188,11 @@ const styles = StyleSheet.create({
   contained: { overflow: "hidden" },
   row: {
     flexDirection: "row",
+    justifyContent: 'space-between',
+    alignContent: 'center',
+    alignItems: 'center',
+    flex: 1,
+    width: Dimensions.get("screen").width - 60
   },
   flexOne: {
     flex: 1,
@@ -170,12 +208,12 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     padding: 5,
-    paddingLeft: 5,
-    paddingRight: 5,
-    paddingTop: 5,
-    paddingBottom: 5,
-    borderRadius: 30,
-    backgroundColor: lightColors.grey5,
+    marginLeft: 10,
+    marginRight: 0,
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingTop: 8,
+    paddingBottom: 8,
   },
 });
 

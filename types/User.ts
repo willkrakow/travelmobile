@@ -1,4 +1,6 @@
-interface IUser {
+import { IFriend } from "../hooks/useFriends";
+
+export interface IUser {
     first_name: string;
     last_name: string;
     birthday: string;
@@ -7,4 +9,5 @@ interface IUser {
     bio: string;
     state: string;
     country: string;
+    friends: IFriend[]
 }

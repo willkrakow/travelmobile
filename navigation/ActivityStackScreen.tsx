@@ -7,7 +7,7 @@ const ActivityStack = createNativeStackNavigator<ActivityStackParamList>();
 
 const ActivityStackScreen = () => {
   return (
-    <ActivityStack.Navigator screenOptions={{ headerShown: true,  }}>
+    <ActivityStack.Navigator screenOptions={{ headerShown: false }}>
       <ActivityStack.Screen name="Home" component={ActivityList} />
       <ActivityStack.Screen
         name="AddActivity"

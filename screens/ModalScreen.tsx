@@ -53,7 +53,7 @@ export default function ModalScreen({
           </View>
         ))}
       <Button
-        onPress={() => {}}
+        onPress={() => navigation.navigate("Root", {screen: "Profile", params: {screen: "CreateTrip"}})}
         type="solid"
         color="primary"
         icon={<ThemeIcon name="add" color="white" />}

@@ -1,34 +1,34 @@
-import { addDoc, getDocs, query, where, deleteDoc, doc } from "firebase/firestore";
+import { addDoc, getDocs, query, where, deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import { IActivity } from "../types/Activities";
 import { createCollection } from "../vendors/Firebase";
 import { useTripContext } from "./useTripContexts";
 
 
-const activityCol = createCollection<IActivity>("activities")
+export const activityCol = createCollection<IActivity>("activities")
 const useTripActivities = () => {
     const {tripId} = useTripContext();
-    const getAll = useQuery(["trips", tripId, 'activities'], async () => {
+    const queryKey = ["trips", tripId, "activities"];
+    const getAll = useQuery(queryKey, async () => {
         const q = query(activityCol, where("trip_id", "==", tripId))
         const docs = await getDocs(q)
-
         return docs.docs.map((d) => ({
+            ...d.data(),
             id: d.id,
-            ...d.data()
         }))
     }, {
-        enabled: typeof tripId !== 'undefined' && tripId?.length > 0
+        enabled: !!tripId && tripId?.length > 0,
+        refetchInterval: 60*1000,
+        refetchOnMount: true,
     })
 
     const client = useQueryClient()
     const create = useMutation(async (data: IActivity) => {
-        const res = await addDoc(activityCol, data)
-        
-        return res
+        await addDoc(activityCol, data);
     }, {
         onSuccess: () => {
-            client.invalidateQueries(["trips", tripId, 'activities']);
-            client.refetchQueries(["trips", tripId, 'activities'])
+            client.invalidateQueries(queryKey);
+            client.refetchQueries(queryKey)
         }
     })
 
@@ -38,12 +38,27 @@ const useTripActivities = () => {
         return;
     }, {
         onSuccess: () => {
-            client.invalidateQueries(['trips', tripId, 'activities'])
+            client.invalidateQueries(queryKey);
+            client.refetchQueries(queryKey);
+        },
+        onError: () => {
+            console.log("ERRORRRRR")
+        }
+    })
+
+    const update = useMutation(async (data: IActivity & {id: string}) => {
+        const activityRef = doc(activityCol, data.id);
+        const removed = Object.fromEntries(Object.entries(data).filter(([key, val]) => key !== 'id'));
+        await updateDoc(activityRef, removed)
+    }, {
+        onSuccess: () => {
+            client.invalidateQueries(["trips", tripId, "activities"]);
+            console.log("invalidating");
             client.refetchQueries(["trips", tripId, "activities"]);
         }
     })
 
-    return {getAll, create, deleteOne}
+    return {getAll, create, deleteOne, update}
 }
 
 export default useTripActivities

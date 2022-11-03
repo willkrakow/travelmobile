@@ -1,66 +1,5 @@
-import { PlusCode } from "react-native-google-places-autocomplete";
 import { GOOGLE_MAPS_API_KEY } from "../constants/Api";
-
-interface AddressComponent {
-  long_name: string;
-  short_name: string;
-  types: string[];
-}
-
-interface Location {
-  lat: number;
-  lng: number;
-}
-interface Geometry {
-  location: Location;
-  viewport: {
-    northest?: Location;
-    northwest?: Location;
-    southwest?: Location;
-    southeast?: Location;
-  };
-}
-
-interface PlacePhoto {
-  height: number;
-  width: number;
-  photo_reference: string;
-}
-interface PlaceDetails {
-  result: {
-    address_components: AddressComponent[];
-    formatted_address: string;
-    formatted_phone_number: string;
-    geometry: Geometry;
-
-    icon: string;
-    icon_background_color: string;
-    icon_mask_base_uri: string;
-    name: string;
-    photos: PlacePhoto[];
-    place_id: string;
-  };
-}
-
-interface IAirport {
-  business_status: string;
-  formatted_address: string;
-  geometry: Geometry;
-  icon: string;
-  icon_background_color: string;
-  icon_mask_base_uri: string;
-  name: string;
-  photos: PlacePhoto[];
-  place_id: string;
-  plus_code: PlusCode;
-  rating: number;
-  reference: string;
-  types: string[];
-  user_ratings_total: number;
-}
-interface IAirportResponse {
-  results: IAirport[]
-}
+import { IAirportResponse, IDirectionsResponse, IPlacesAutocompleteResponse, PlaceDetails } from "../types/Maps";
 
 export const placeDirectionsUrl = (placeId: string) => {
   return `https://www.google.com/maps/dir/?api=1&destination_place_id=${placeId}&key=${GOOGLE_MAPS_API_KEY}`;
@@ -108,6 +47,20 @@ export class GoogleMapsClass {
 
   placeDirectionsUrl(placeId: string){
     return this.addKey(`https://www.google.com/maps/dir/?api=1&destination_place_id=${placeId}`);
+  }
+
+  getDirectionsUrl(startPlaceId: string, endPlaceId: string, mode: "driving" | "walking" | "transit"){
+    return `https://www.google.com/maps/dir/?api=1&origin_place_id=${startPlaceId}&destination_place_id=${endPlaceId}&travelmode=${mode}`
+  }
+
+  async getDirections(startPlaceId: string, endPlaceId: string, mode: "driving" | "walking" | "transit" = "driving"){
+    const url = this.addKey(`https://maps.googleapis.com/maps/api/directions/json?origin=place_id:${startPlaceId}&destination=place_id:${endPlaceId}&mode=${mode}`);
+    return await this.fetcher<IDirectionsResponse>(url);
+  }
+
+  async getPlaceAutocomplete(query: string, types: string = "establishment"){
+    const url = this.addKey(`https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${query}&types=${types}`);
+    return await this.fetcher<IPlacesAutocompleteResponse>(url);
   }
 }
 

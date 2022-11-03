@@ -7,6 +7,7 @@ import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Dayjs } from 'dayjs';
+import { IActivity } from './types/Activities';
 import { ILodging } from './types/Lodging';
 
 declare global {
@@ -40,7 +41,7 @@ export type TransportStackParamList = {
 
 export type ActivityStackParamList = {
   Home: undefined;
-  AddActivity: {default_date?: string};
+  AddActivity: {default_date?: string, default_data?: IActivity & {id: string}};
 }
 
 export type ActivityStackScreenProps<

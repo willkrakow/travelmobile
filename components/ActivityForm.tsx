@@ -21,6 +21,8 @@ import ThemeIcon from "./ThemeIcon";
 import { useTripContext } from "../hooks/useTripContexts";
 import useUserId from "../hooks/useUserId";
 import { ActivityStackScreenProps } from "../types";
+import MapsAutocomplete from "./MapsAutocomplete";
+import { IPlacesPrediction } from "../types/Maps";
 
 interface INewActivityForm {
   title: string;
@@ -31,27 +33,28 @@ interface INewActivityForm {
   equipment: string[];
   start_date: dayjs.Dayjs;
   end_date: dayjs.Dayjs;
-  notes: "";
+  notes: string;
 }
 const ActivityForm = ({navigation, route}: ActivityStackScreenProps<"AddActivity">) => {
-  const defaultDate = dayjs(route?.params?.default_date);
+  const defaultDate = dayjs(route.params?.default_date);
+  const existingData = route.params?.default_data;
     const { tripId = "" } = useTripContext();
-  const { create } = useTripActivities();
+  const { create, update } = useTripActivities();
   const user_id = useUserId();
 
   const {
     query: { data: tripData },
   } = useFirebaseTrip();
   const [data, setData] = React.useState<INewActivityForm>({
-    title: "",
-    location: "",
-    url: "",
-    price: "",
+    title: existingData?.title || "",
+    location: existingData?.location || "",
+    url: existingData?.url || "",
+    price: existingData?.price?.toString() || "",
     equipment: [],
-    place_id: "",
-    start_date: defaultDate,
-    end_date: dayjs(),
-    notes: "",
+    place_id: existingData?.place_id || "",
+    start_date: existingData?.start_date ? dayjs(existingData.start_date) : defaultDate,
+    end_date: existingData?.end_date ? dayjs(existingData.end_date) : dayjs(),
+    notes: existingData?.notes || "",
   });
 
   const [showLocationModal, setShowLocationModal] = React.useState(false);
@@ -65,7 +68,8 @@ const ActivityForm = ({navigation, route}: ActivityStackScreenProps<"AddActivity
   };
 
   const handleSubmit = () => {
-    const formatted: IActivity = {
+    const formatted: IActivity & { id?: string } = {
+      ...existingData,
       ...data,
       user_id,
       price: parseInt(data.price, 10),
@@ -74,45 +78,36 @@ const ActivityForm = ({navigation, route}: ActivityStackScreenProps<"AddActivity
       start_date: data.start_date.toISOString(),
       end_date: data.end_date.toISOString(),
     };
+    
+    if(existingData?.id){
 
-    create.mutate(formatted, {
-      onSuccess: () => navigation.navigate("Home"),
-    });
+      update.mutate({...formatted, id: existingData.id}, {
+        onSuccess: () => navigation.navigate("Home")
+      })
+    } else {
+      create.mutate(formatted, {
+        onSuccess: () => navigation.navigate("Home"),
+      });
+    }
   };
+
+  const handlePlaceSelect = (item: IPlacesPrediction) =>{
+    setData({
+      ...data,
+      location: item.description,
+      place_id: item.place_id,
+    });
+    setShowLocationModal(false);
+  }
+
   return (
-    <View style={{ flex: 1 }}>
-      <ScrollView>
+    <View style={styles.root}>
+      <ScrollView style={styles.scrollRoot}>
         <Input
           value={data.title}
           onChangeText={(text) => handleChange("title", text)}
           label="Title"
         />
-        <Input
-          keyboardType="number-pad"
-          value={data.price}
-          onChangeText={(text) => handleChange("price", text)}
-          leftIcon={<ThemeIcon name="logo-usd" />}
-          label="Price"
-        />
-        <Text style={styles.timeLabel}>Start time</Text>
-        <DatePicker
-          mode="datetime"
-          minimumDate={dayjs(tripData?.departure_date || "").toDate()}
-          maximumDate={dayjs(tripData?.return_date || "").toDate()}
-          value={data?.start_date?.toDate()}
-          onChange={(_, date) => setData({ ...data, start_date: dayjs(date) })}
-        />
-        <View style={{ height: 100, flexDirection: "row" }}>
-          <Text style={styles.timeLabel}>End time</Text>
-          <DatePicker
-            style={{ flex: 1 }}
-            mode="datetime"
-            value={data.end_date.toDate()}
-            minimumDate={data.start_date?.toDate()}
-            maximumDate={dayjs(tripData?.return_date).toDate()}
-            onChange={(_, date) => setData({ ...data, end_date: dayjs(date) })}
-          />
-        </View>
         <Input
           leftIcon={
             <Ionicons
@@ -130,12 +125,44 @@ const ActivityForm = ({navigation, route}: ActivityStackScreenProps<"AddActivity
           onFocus={() => setShowLocationModal(true)}
           onPressIn={() => setShowLocationModal(true)}
         />
+        <View style={{ flexDirection: "row" }}>
+          <View style={{ flex: 0.3 }}>
+            <Text style={styles.timeLabel}>Start time</Text>
+          </View>
+          <View style={{ flex: 0.7 }}>
+            <DatePicker
+              mode="datetime"
+              minimumDate={dayjs(tripData?.departure_date || "").toDate()}
+              maximumDate={dayjs(tripData?.return_date || "").toDate()}
+              value={data?.start_date?.toDate()}
+              onChange={(_, date) =>
+                setData({ ...data, start_date: dayjs(date) })
+              }
+            />
+          </View>
+        </View>
+        <View style={{ flexDirection: "row" }}>
+          <View style={{ flex: 0.3 }}>
+            <Text style={styles.timeLabel}>End time</Text>
+          </View>
+          <View style={{ flex: 0.7 }}>
+            <DatePicker
+              mode="datetime"
+              value={data.end_date.toDate()}
+              minimumDate={data.start_date?.toDate()}
+              maximumDate={dayjs(tripData?.return_date).toDate()}
+              onChange={(_, date) =>
+                setData({ ...data, end_date: dayjs(date) })
+              }
+            />
+          </View>
+        </View>
         <Input
-          value={data.url}
-          onChangeText={(text) => handleChange("url", text)}
-          label="Link"
-          leftIcon={<ThemeIcon name="link" />}
-          autoCapitalize="none"
+          keyboardType="number-pad"
+          value={data.price}
+          onChangeText={(text) => handleChange("price", text)}
+          leftIcon={<ThemeIcon name="logo-usd" />}
+          label="Price"
         />
         <Input
           value={data.notes}
@@ -162,28 +189,7 @@ const ActivityForm = ({navigation, route}: ActivityStackScreenProps<"AddActivity
         presentationStyle="formSheet"
         style={styles.placesModal}
       >
-        <GooglePlacesAutocomplete
-          placeholder="Search"
-          textInputProps={{
-            defaultValue: data.location,
-          }}
-          suppressDefaultStyles
-          styles={{
-            textInput: styles.placesInput,
-          }}
-          onPress={(locationData) => {
-            setData({
-              ...data,
-              location: locationData.description,
-              place_id: locationData.place_id,
-            });
-            setShowLocationModal(false);
-          }}
-          query={{
-            key: GOOGLE_MAPS_API_KEY,
-            language: "en",
-          }}
-        />
+        <MapsAutocomplete onSelect={handlePlaceSelect} />
         <FAB
           onPress={() => setShowLocationModal(false)}
           icon={<ThemeIcon name="close" color="white" />}
@@ -196,11 +202,12 @@ const ActivityForm = ({navigation, route}: ActivityStackScreenProps<"AddActivity
 };
 
 const styles = StyleSheet.create({
-  root: { flex: 1},
-  placesModal: { 
+  root: { flex: 1, padding: 10 },
+  scrollRoot: {},
+  placesModal: {
     paddingTop: 20,
-    marginTop: 20
-   },
+    marginTop: 20,
+  },
   placesInput: {
     paddingTop: 5,
     borderWidth: 2,

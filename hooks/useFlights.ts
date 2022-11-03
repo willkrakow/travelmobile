@@ -16,7 +16,7 @@ interface IFlight {
   trip_id: string;
   user_id: string;
 }
-const flightCol = createCollection<IFlight>("flights");
+export const flightCol = createCollection<IFlight>("flights");
 const useFlights = () => {
   const client = useQueryClient();
   const { tripId = "" } = useTripContext();

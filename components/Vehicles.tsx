@@ -4,6 +4,7 @@ import useVehicles from '../hooks/useVehicles'
 import { StyleSheet, View } from 'react-native';
 import { TransportStackScreenProps } from '../types';
 import ThemeIcon from './ThemeIcon';
+import { COLOR_LABELS } from '../constants/vehicles';
 
 const Vehicles = ({ navigation }: TransportStackScreenProps<"Vehicles">) => {
   const { getAll: vehicles } = useVehicles();
