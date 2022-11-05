@@ -3,12 +3,12 @@ import { TypesenseCollection } from "./Collection";
 import { arrayToObject } from "./helpers";
 
 export class Typesense extends TypesenseBase {
-  _collections: DocumentCache<TypesenseCollection>;
+  _collections: DocumentCache<TypesenseCollection<any>>;
 
   constructor(
     apiKey: string,
     hostUrl: string,
-    collections: TypesenseCollection[] = []
+    collections: TypesenseCollection<any>[] = []
   ) {
     super(apiKey, hostUrl);
     this._collections = arrayToObject(collections, "name");
@@ -16,9 +16,9 @@ export class Typesense extends TypesenseBase {
 
   get collections() {
     return {
-      create: async (collection: ITypesenseCollection) => {
+      create: async <T extends ITypesenseDocument>(collection: ITypesenseCollection<T>) => {
         try {
-          this._collections[collection.name] = await new TypesenseCollection(
+          this._collections[collection.name] = await new TypesenseCollection<T>(
             this.apiKey,
             this.hostUrl,
             collection.name,

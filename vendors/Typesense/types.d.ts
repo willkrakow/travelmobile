@@ -2,22 +2,24 @@ type ITypesenseDocument = {
   [key: string]: string | number | boolean;
 } & { id: string };
 
-interface ITypesenseField {
-  name: string;
+
+type ExtractStringKeys<T> = Extract<keyof T, string>
+interface ITypesenseField<DocType extends ITypesenseDocument> {
+  name: ExtractStringKeys<DocType>
   type: "string" | "int32";
 }
-interface ITypesenseCollection {
+interface ITypesenseCollection<DocType extends ITypesenseDocument> {
   name: string;
-  fields: ITypesenseField[];
-  default_sorting_field: string;
+  fields: ITypesenseField<DocType>[];
+  default_sorting_field: ExtractStringKeys<DocType>
 }
 
 
-type QueryParamObject = {
+type QueryParamObject<DocType extends ITypesenseDocument> = {
   q?: string;
-  query_by: string;
-  filter_by: string;
-  sort_by: string;
+  query_by: ExtractStringKeys<DocType>;
+  filter_by?: ExtractStringKeys<DocType>;
+  sort_by?: ExtractStringKeys<DocType>;
 };
 
 type DocumentCache<T> = {

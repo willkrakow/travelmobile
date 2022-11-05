@@ -2,19 +2,19 @@ import { TypesenseBase } from "./Base";
 import { TypesenseDocument } from "./Document";
 import { arrayToObject } from "./helpers";
 
-export class TypesenseCollection extends TypesenseBase {
+export class TypesenseCollection<DocType extends ITypesenseDocument> extends TypesenseBase {
   name: string;
   defaultSortingField: string;
-  fields: ITypesenseField[];
-  _documents: DocumentCache<TypesenseDocument>;
+  fields: ITypesenseField<DocType>[];
+  _documents: DocumentCache<TypesenseDocument<DocType>>;
 
   constructor(
     apiKey: string,
     hostUrl: string,
     name: string,
-    fields: ITypesenseField[],
-    documents: TypesenseDocument[] = [],
-    defaultSortingField?: string
+    fields: ITypesenseField<DocType>[],
+    documents: TypesenseDocument<DocType>[] = [],
+    defaultSortingField?: Extract<keyof DocType, string>
   ) {
     super(apiKey, hostUrl);
     this.name = name;
@@ -23,7 +23,7 @@ export class TypesenseCollection extends TypesenseBase {
     this.defaultSortingField = defaultSortingField || fields[0].name;
   }
 
-  async query(q: string | QueryParamObject) {
+  async query(q: string | QueryParamObject<DocType>) {
     if (typeof q === "string") {
       const path = `/collections/${this.name}/documents/search?q=${q}`;
       return await this.fetcher(path);
@@ -49,9 +49,9 @@ export class TypesenseCollection extends TypesenseBase {
 
   get documents() {
     return {
-      create: async (data: ITypesenseDocument) => {
+      create: async (data: DocType) => {
         try {
-          this._documents[data.id] = await new TypesenseDocument(
+          this._documents[data.id] = await new TypesenseDocument<DocType>(
             this.apiKey,
             this.hostUrl,
             data.id,
@@ -62,6 +62,11 @@ export class TypesenseCollection extends TypesenseBase {
           console.log(err);
         }
       },
+      remove: async (id: keyof typeof this._documents) => {
+            const toDelete = this._documents[id];
+            await toDelete.remove();
+            delete this._documents[id];
+    }
     };
   }
   document(id: keyof typeof this._documents) {

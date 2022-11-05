@@ -44,18 +44,6 @@ class TypesenseBase {
   }
 }
 
-
-type QueryParamObject = {
-    q?: string;
-    query_by: string;
-    filter_by: string;
-    sort_by: string;
-}
-
-type DocumentCache<T> = {
-    [id: string]: T
-}
-
 function arrayToObject<T extends Record<string, any>>(arr: T[], key: keyof T){
     const obj: DocumentCache<T> = {};
     arr.forEach(el => obj[el[key]] = el);

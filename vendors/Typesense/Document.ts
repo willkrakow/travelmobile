@@ -1,6 +1,6 @@
 import { TypesenseBase } from "./Base";
 
-export class TypesenseDocument<T = any> extends TypesenseBase {
+export class TypesenseDocument<T extends ITypesenseDocument> extends TypesenseBase {
   id: string;
   _data: T;
   collectionName: string;
@@ -18,16 +18,28 @@ export class TypesenseDocument<T = any> extends TypesenseBase {
   }
 
   async insert() {
-    const path = `collections/${this.collectionName}/documents`;
+    const path = `/collections/${this.collectionName}/documents`;
     const method = "POST";
     await this.fetcher(path, method, this._data);
     return this;
   }
 
   async update(data: Partial<T>) {
-    const path = `collections/${this.collectionName}/documents/${this.id}`;
+    const path = `/collections/${this.collectionName}/documents/${this.id}`;
     const method = `PATCH`;
     await this.fetcher(path, method, data);
     Object.assign({}, this._data, data);
+  }
+
+  async remove(){
+    const path = `/collections/${this.collectionName}/documents/${this.id}`;
+    const method = "DELETE";
+    await this.fetcher(path, method);
+  }
+
+  async data(){
+    const path = `/collections/${this.collectionName}/documents/${this.id}`;
+    const method = "GET";
+    await this.fetcher(path, method);
   }
 }
