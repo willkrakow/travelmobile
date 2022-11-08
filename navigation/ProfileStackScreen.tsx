@@ -1,5 +1,6 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Text, View } from "react-native";
+import FriendsList from "../components/FriendsList";
 import TripFormModal from "../components/TripFormModal";
 import ProfileScreen from "../screens/ProfileScreen";
 import TripsHomeScreen from "../screens/TripsHomeScreen";
@@ -29,6 +30,7 @@ export const ProfileStackScreen = () => (
       name="EditTrip"
       component={EditTrip}
     />
+    <ProfileStack.Screen options={{headerShown: true, headerBackTitle: "Back", headerTitle: ""}} name="Friends" component={FriendsList} />
   </ProfileStack.Navigator>
 );
 

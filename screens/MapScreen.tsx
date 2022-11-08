@@ -89,8 +89,6 @@ const MapScreen = () => {
           latitude: a?.geometry?.location?.lat || 1,
           longitude: a?.geometry?.location?.lng || 1,
         })).filter(a => !isNil(a.latitude) && !isNil(a.longitude)) || [];
-        console.log(markers?.data?.activityMarkers?.[1]?.geometry?.location)
-        console.log(markers?.data?.lodgingMarkers?.[1]?.geometry?.location);
       const minLat = smallestByKey(formatted, "latitude") || 1;
       const minLng = smallestByKey(formatted, "longitude") || 1;
       const maxLat = largestByKey(formatted, "latitude") || 1;

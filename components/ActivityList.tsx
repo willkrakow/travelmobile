@@ -10,7 +10,6 @@ import { ActivityStackScreenProps } from "../types";
 import ActivityCards from "./ActivityCards";
 import useMergeDayActivities, { MergedActivitiesContext } from "../hooks/useMergeDayActivities";
 import LodgingCard from "./LodgingCard";
-import { trial } from "../vendors/Typesense";
 
 export default function ActivityList({navigation}: ActivityStackScreenProps<"Home">) {
   const {tripDays, isLoading} = useMergeDayActivities();
@@ -24,7 +23,6 @@ export default function ActivityList({navigation}: ActivityStackScreenProps<"Hom
   return (
     <View style={styles.root}>
       {isLoading && <LinearProgress />}
-      <Button onPress={trial} title="Create TS collection" color="primary" type="solid" />
       <MergedActivitiesContext.Provider
         value={{ shouldRerender, rerender: () => setShouldRerender(true) }}
       >

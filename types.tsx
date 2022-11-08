@@ -61,6 +61,7 @@ export type ProfileStackParamList = {
   Trips: undefined;
   EditTrip: {trip_id: string};
   CreateTrip: undefined;
+  Friends: undefined;
 };
 export type ProfileStackScreenProps<Screen extends keyof ProfileStackParamList> =
   NativeStackScreenProps<ProfileStackParamList, Screen>;

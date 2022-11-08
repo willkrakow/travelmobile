@@ -6,10 +6,11 @@ import dayjs, { Dayjs } from "dayjs";
 import { StyleSheet, View } from "react-native";
 import { Button, Input } from "@rneui/themed";
 import SearchModal, { IOption } from "./SearchModal";
-import useDrives, { IDrive } from "../hooks/useDrives";
+import useDrives from "../hooks/useDrives";
 import useUserId from "../hooks/useUserId";
 import { useTripContext } from "../hooks/useTripContexts";
 import { useNavigation } from "@react-navigation/native";
+import { IDrive } from "../types/Drives";
 
 interface INewDriveForm {
   departure_location_name?: string;
@@ -82,7 +83,6 @@ const DriveForm = () => {
   }, []);
 
   const handleSelectVehicle = (id: string, value: string, vehicle: IOption | undefined) => {
-    console.log()
     setData({
       ...data,
       vehicle_id: vehicle?.id,

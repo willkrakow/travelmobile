@@ -2,15 +2,15 @@ import React from 'react'
 import { lightColors, LinearProgress, ListItem, Text } from '@rneui/themed'
 import { activityCol } from '../hooks/useTripActivities'
 import { lodgingCol } from '../hooks/useLodging'
-import { IDrive } from '../hooks/useDrives'
 import { doc, DocumentSnapshot, getDoc } from 'firebase/firestore'
 import { ILodging } from '../types/Lodging'
 import { IActivity } from '../types/Activities'
 import ThemeIcon from './ThemeIcon'
-import GoogleMaps, { GoogleMapsClass } from '../utils/maps'
+import GoogleMaps from '../utils/maps'
 import { IDirectionsLeg } from '../types/Maps'
-import { IWalk } from '../hooks/useWalks'
-import { Alert, Linking, StyleSheet, View } from 'react-native'
+import { Linking, StyleSheet, View } from 'react-native'
+import { IWalk } from '../types/Walks'
+import { IDrive } from '../types/Drives'
 
 interface IDirectionsCard {
     data: IDrive | IWalk;
@@ -89,7 +89,7 @@ const DirectionsCard = ({data, type}: IDirectionsCard) => {
                   directions_url: directionsUrl,
                 });
             } catch(err){
-                console.log(err);
+                setLoading(false)
             }
             setEndpointData({
                 departure,

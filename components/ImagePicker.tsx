@@ -18,8 +18,6 @@ export default function ImagePicker({onSave}: IImagePicker) {
       quality: 1,
     });
 
-    console.log(result);
-
     if (!result.cancelled) {
       setImage(result);
       onSave(result)

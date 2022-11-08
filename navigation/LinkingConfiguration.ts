@@ -41,6 +41,7 @@ const linking: LinkingOptions<RootStackParamList> = {
           Profile: {
             screens: {
               ProfileRoot: 'profile',
+              Friends: 'friends'
             },
           },
         },

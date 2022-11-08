@@ -1,12 +1,14 @@
 import React from "react";
 import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Button, Image, ListItem } from "@rneui/themed";
+import { Button, Image, Input, ListItem } from "@rneui/themed";
 import useProfileImage from "../hooks/useProfileImage";
 import {getAuth, updateProfile} from 'firebase/auth'
 import useUser from "../hooks/useUser";
 import dayjs from "dayjs";
 import { ProfileStackScreenProps } from "../types";
+import useFriends from "../hooks/useFriends";
+import FriendsList from "../components/FriendsList";
 
 interface INewProfileForm {
   first_name: string;
@@ -19,7 +21,8 @@ interface INewProfileForm {
 export default function ProfileScreen({navigation}: ProfileStackScreenProps<"Home">) {
   const { imageUrl } = useProfileImage();
   const [hasChanges, setHasChanges] = React.useState<boolean>(false);
-  
+  const { searchTerm, setSearchTerm, queryUsers } = useFriends();
+
   const {getCurrent, update} = useUser();
   const [data, setData] = React.useState<INewProfileForm>({
     first_name: '',
@@ -71,32 +74,32 @@ export default function ProfileScreen({navigation}: ProfileStackScreenProps<"Hom
       last_name: data.last_name,
       state: data.state,
       phone_number: auth.currentUser?.phoneNumber || '',
-      email: auth.currentUser?.email || ''
+      email: auth.currentUser?.email || '',
+      friends: []
     })
   }
 
   return (
-    <SafeAreaView>
-      <View
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          paddingTop: 20,
-          paddingBottom: 20,
-        }}
-      >
-        <Image
-          containerStyle={{
-            height: 100,
-            width: 100,
-            borderRadius: 50,
-            overflow: "hidden",
+      <View style={{ flex: 1 }}>
+        <View
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            paddingTop: 20,
+            paddingBottom: 20,
           }}
-          source={{ uri: imageUrl, height: 100, width: 100 }}
-        />
-      </View>
-      <View>
+        >
+          <Image
+            containerStyle={{
+              height: 100,
+              width: 100,
+              borderRadius: 50,
+              overflow: "hidden",
+            }}
+            source={{ uri: imageUrl, height: 100, width: 100 }}
+          />
+        </View>
         <ListItem>
           <ListItem.Input
             label="First Name"
@@ -114,10 +117,22 @@ export default function ProfileScreen({navigation}: ProfileStackScreenProps<"Hom
           />
         </ListItem>
         <ListItem>
-          <ListItem.Input multiline numberOfLines={5} scrollEnabled value={data.bio} />
+          <ListItem.Input
+            multiline
+            numberOfLines={5}
+            scrollEnabled
+            value={data.bio}
+          />
         </ListItem>
-        <Button type="solid" color="primary" onPress={handleSave} title="Save" />
+        <Button
+          type="solid"
+          color="primary"
+          onPress={handleSave}
+          title="Save"
+        />
+        <View style={{ flex: 1 }}>
+          <Button title="My Friends" type="outline" color="primary" onPress={() => navigation.navigate("Friends")} />
+        </View>
       </View>
-    </SafeAreaView>
   );
 }

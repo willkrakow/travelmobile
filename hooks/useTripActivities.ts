@@ -41,9 +41,6 @@ const useTripActivities = () => {
             client.invalidateQueries(queryKey);
             client.refetchQueries(queryKey);
         },
-        onError: () => {
-            console.log("ERRORRRRR")
-        }
     })
 
     const update = useMutation(async (data: IActivity & {id: string}) => {
@@ -53,7 +50,6 @@ const useTripActivities = () => {
     }, {
         onSuccess: () => {
             client.invalidateQueries(["trips", tripId, "activities"]);
-            console.log("invalidating");
             client.refetchQueries(["trips", tripId, "activities"]);
         }
     })

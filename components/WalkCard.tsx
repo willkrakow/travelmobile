@@ -8,7 +8,7 @@ import { IActivity } from "../types/Activities";
 import ThemeIcon from "./ThemeIcon";
 import GoogleMaps from "../utils/maps";
 import { IDirectionsLeg } from "../types/Maps";
-import { IWalk } from "../hooks/useWalks";
+import { IWalk } from "../types/Walks";
 
 interface IWalkCard {
   data: IWalk;
@@ -80,7 +80,7 @@ const WalkCard = ({ data }: IWalkCard) => {
         const leg = googleMapsData.routes[0].legs[0];
         setMetadata(leg);
       } catch (err) {
-        console.log(err);
+        setLoading(false);
       }
       setEndpointData({
         departure,

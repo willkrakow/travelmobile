@@ -1,22 +1,17 @@
 import {
-  addDoc,
   CollectionReference,
   doc,
   getDoc,
-  getDocs,
-  query,
-  where,
   collection,
   updateDoc,
   arrayUnion,
 } from "firebase/firestore";
-import { useMutation, useQuery } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import useUserId from "./useUserId";
 import { userCol } from "./useUser";
 import React from "react";
-import { IUser } from "../types/User";
-import dayjs from "dayjs";
-
+import { ITypesenseQueryHit, IUserRecord } from "../types/Typesense";
+import useThrottle from "./useThrottle";
 export interface IFriendRelation {
     sent_by_user_id: string;
     received_by_user_id: boolean;
@@ -34,39 +29,40 @@ export interface IFriend {
 export const createUserFriendCollection = (userId: string) => collection(userCol, userId, 'friends') as CollectionReference<IFriend>;
 const useFriends = () => {
   const userId = useUserId();
-  
+  const client = useQueryClient();
   const userFriendCollection = createUserFriendCollection(userId);
   const getAllFriends = useQuery(
     ["users", userId, 'friends'],
     async () => {
-      const q = query(userFriendCollection);
-      const { docs } = await getDocs(q);
-
-      const withData = await Promise.all(docs.map(async (l) => {
-        const friendData = await getDoc(doc(userCol, l.data().friend_id));
-        return {
-            ...l.data(),
-            id: l.id,
-            friend: {
-                ...friendData.data(),
-                id: friendData.id,
-            }
-        }
-      }));
-
-      return withData
+      const data = await getDoc(doc(userCol, userId));
+      return data.data()?.friends
     },
     {
       enabled: userId.length > 0,
       refetchOnMount: true,
-      refetchInterval: 1000 * 60,
+      refetchInterval: 1000 * 20,
     }
   );
 
   const createFriendRequest = useMutation(async (data: IFriend) => {
     await updateDoc(doc(userCol, userId), {
         friends: arrayUnion(data)
+    });
+
+    await updateDoc(doc(userCol, data.friend_id), {
+      friends: arrayUnion({
+        friend_id: userId,
+        approved: false,
+        created_at: data.created_at,
+        user_sent_request: false,
+        friend_sent_request: true,
+      })
     })
+  }, {
+    onSuccess: () => {
+      client.invalidateQueries(['users', userId, 'friends']);
+      client.refetchQueries(['users', userId, 'friends']);
+    }
   });
 
   const approveFriendRequest = useMutation(async (friendId: string) => {
@@ -76,28 +72,17 @@ const useFriends = () => {
   })
 
   const [searchTerm, setSearchTerm] = React.useState('');
-  const [userResults, setUserResults] = React.useState<(IUser & {id: string})[]>([]);
-
-  const queryUsers = useQuery(['users'], async () => {
-      const idResult = await getDoc(doc(userCol, searchTerm));
-      if (idResult?.exists()){
-        return setUserResults([{
-            ...idResult.data(),
-            id: idResult.id,
-        }])
-      }
-    const emailQuery = query(userCol, where('email', '==', searchTerm));
-    const nameQuery = query(userCol, where("first_name", '==', searchTerm), where("last_name", '==', searchTerm));
+  const throttledSearch = useThrottle(searchTerm, 1500);
+  const queryUsers = useQuery(['users', 'query', throttledSearch], async () => {
+      const apiResponse = await fetch(
+        `http://localhost:5001/travelmobile-48740/us-central1/fakeQuery?q=${searchTerm}&query_by=${encodeURIComponent('first_name')}`
+      );
+      const data = await apiResponse.json();
+      return data.hits as ITypesenseQueryHit<IUserRecord>[]
     
-    const results = await Promise.all([emailQuery, nameQuery].map(async q => await getDocs(q)));
-    setUserResults(results.flatMap(d => d.docs).map(d => ({
-        ...d.data(),
-        id: d.id,
-    })))
-    
-  })
+  }, {enabled: throttledSearch.length > 2})
 
-  return { getAllFriends, queryUsers, searchTerm, setSearchTerm, userResults, createFriendRequest, approveFriendRequest };
+  return { getAllFriends, queryUsers, searchTerm, setSearchTerm, createFriendRequest, approveFriendRequest };
 };
 
 export default useFriends;

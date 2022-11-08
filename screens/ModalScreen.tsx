@@ -15,7 +15,6 @@ export default function ModalScreen({
 
   const handlePress = (id: string) => {
     changeTripId && changeTripId(id);
-    console.log("clicked modal")
     // navigation.navigate("Root");
   };
 

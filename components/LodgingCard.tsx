@@ -11,7 +11,6 @@ interface ILodgingCard {
 }
 const LodgingCard = ({lodging}: ILodgingCard) => {
     const {data, isLoading} = usePlaceDetails(lodging.place_id);
-    console.log(data?.result);
     return (
       <ListItem style={{ borderRadius: 20, overflow: "hidden", marginBottom: 20 }}>
         <ListItem.Content>

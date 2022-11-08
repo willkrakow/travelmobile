@@ -9,7 +9,6 @@ import DatePicker from "@react-native-community/datetimepicker";
 import dayjs, { Dayjs } from "dayjs";
 import useUserId from "../hooks/useUserId";
 import useLodging from "../hooks/useLodging";
-import { IActivity } from "../types/Activities";
 
 interface ITripPhotoForm {
   image: ImageInfo | null;
@@ -68,22 +67,6 @@ const TripPhotos = () => {
     }
   }
 
-  const formattedOptions = React.useMemo(() => {
-    let acts: (IActivity & {id: string})[];
-    let lodges;
-    if(!getActivities.data){
-        acts = []
-    } else {
-        acts = getActivities.data
-    }
-    if(!getLodging.data) {
-        lodges = []
-    }
-    return acts.map(d => ({
-        id: d.id,
-        value: d.title,
-    }))
-  }, [getActivities?.data])
   return (
     <View style={{ flex: 1 }}>
       <ImagePicker onSave={(img) => setData({ ...data, image: img })} />
@@ -97,7 +80,6 @@ const TripPhotos = () => {
         value={data.date_taken.toDate()}
       />
       <Input value={data?.activity_id || data?.lodging_id} onPressIn={() => {}} label="Place tag" />
-      {/* <SearchModal label="Search activities and lodging" onClose={() => {}} onSelect={handlePlaceSelect} options={} */}
     </View>
   );
 };

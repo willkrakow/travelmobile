@@ -69,7 +69,6 @@ export default function LodgingList({ navigation }: LodgingStackScreenProps<"Hom
     return dayData;
   }, [tripData, ordered]);
 
-  console.log(tripDays)
   const handleGetDirections = async (placeId?: string) => {
     if (!placeId) return;
     const url = placeDirectionsUrl(placeId);
